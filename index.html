@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Don Cachulo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f0f1a;
+    color: #e0e0f0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: #16162a;
+    border-bottom: 1px solid #2a2a4a;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #0066cc, #7b2ff7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text h1 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .logo-text span {
+    font-size: 11px;
+    color: #8888aa;
+  }
+
+  .btn-reset {
+    background: transparent;
+    border: 1px solid #3a3a5a;
+    color: #8888aa;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+
+  .btn-reset:hover {
+    border-color: #0066cc;
+    color: #0066cc;
+  }
+
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .message {
+    max-width: 760px;
+    width: 100%;
+  }
+
+  .message.user { align-self: flex-end; }
+  .message.assistant { align-self: flex-start; }
+
+  .bubble {
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .message.user .bubble {
+    background: #0066cc;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+
+  .message.assistant .bubble {
+    background: #1e1e35;
+    color: #e0e0f0;
+    border-bottom-left-radius: 4px;
+    border: 1px solid #2a2a4a;
+  }
+
+  .msg-label {
+    font-size: 11px;
+    color: #555577;
+    margin-bottom: 4px;
+    padding: 0 4px;
+  }
+
+  .message.user .msg-label { text-align: right; }
+
+  .attachments {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .attachment-image img {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 10px;
+    border: 1px solid #2a2a4a;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .attachment-image img:hover { opacity: 0.9; }
+
+  .attachment-pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #16162a;
+    border: 1px solid #2a2a4a;
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: #e0e0f0;
+    font-size: 13px;
+    transition: border-color 0.2s;
+  }
+
+  .attachment-pdf:hover { border-color: #0066cc; }
+  .attachment-pdf .pdf-icon { font-size: 20px; }
+  .attachment-pdf .pdf-name { font-size: 12px; color: #8888aa; }
+
+  .thinking {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: #1e1e35;
+    border: 1px solid #2a2a4a;
+    border-radius: 14px;
+    border-bottom-left-radius: 4px;
+    font-size: 13px;
+    color: #8888aa;
+    width: fit-content;
+  }
+
+  .dots span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #0066cc;
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+
+  .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  #input-area {
+    background: #16162a;
+    border-top: 1px solid #2a2a4a;
+    padding: 16px 24px;
+  }
+
+  .input-wrapper {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  #user-input {
+    flex: 1;
+    background: #0f0f1a;
+    border: 1px solid #2a2a4a;
+    border-radius: 12px;
+    color: #e0e0f0;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: none;
+    min-height: 44px;
+    max-height: 180px;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+
+  #user-input:focus { border-color: #0066cc; }
+  #user-input::placeholder { color: #444466; }
+
+  #send-btn {
+    background: #0066cc;
+    border: none;
+    color: #fff;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  #send-btn:hover { background: #0055aa; }
+  #send-btn:disabled { background: #2a2a4a; cursor: not-allowed; }
+
+  .hint {
+    text-align: center;
+    font-size: 11px;
+    color: #444466;
+    margin-top: 8px;
+  }
+
+  /* Scrollbar */
+  #messages::-webkit-scrollbar { width: 6px; }
+  #messages::-webkit-scrollbar-track { background: transparent; }
+  #messages::-webkit-scrollbar-thumb { background: #2a2a4a; border-radius: 3px; }
+
+  /* Welcome */
+  .welcome {
+    text-align: center;
+    margin: auto;
+    padding: 40px 20px;
+  }
+
+  .welcome .big-icon { font-size: 56px; margin-bottom: 16px; }
+  .welcome h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #fff; }
+  .welcome p { font-size: 14px; color: #8888aa; max-width: 400px; margin: 0 auto 24px; line-height: 1.6; }
+
+  .suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .suggestion {
+    background: #1e1e35;
+    border: 1px solid #2a2a4a;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: #aaaacc;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .suggestion:hover {
+    border-color: #0066cc;
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🤵</div>
+    <div class="logo-text">
+      <h1>Don Cachulo</h1>
+      <span>Agente personal de Hans</span>
+    </div>
+  </div>
+  <button class="btn-reset" onclick="resetChat()">Nueva conversación</button>
+</header>
+
+<div id="messages">
+  <div class="welcome" id="welcome">
+    <div class="big-icon">🤵</div>
+    <h2>Hola, soy Don Cachulo</h2>
+    <p>Tu asistente personal. Puedo gestionar tu calendario, generar imágenes, redactar propuestas en PDF y mucho más.</p>
+    <div class="suggestions">
+      <div class="suggestion" onclick="sendSuggestion('¿Qué tengo en el calendario esta semana?')">📅 Mi agenda esta semana</div>
+      <div class="suggestion" onclick="sendSuggestion('Genera una imagen de un atardecer en la ciudad')">🎨 Generar una imagen</div>
+      <div class="suggestion" onclick="sendSuggestion('Redacta una propuesta de servicios de consultoría y envíamela en PDF')">📄 Propuesta en PDF</div>
+      <div class="suggestion" onclick="sendSuggestion('Crea un evento para mañana a las 10am llamado Reunión de equipo')">➕ Crear evento</div>
+    </div>
+  </div>
+</div>
+
+<div id="input-area">
+  <div class="input-wrapper">
+    <textarea
+      id="user-input"
+      placeholder="Escríbele a Don Cachulo..."
+      rows="1"
+      onkeydown="handleKey(event)"
+      oninput="autoResize(this)"
+    ></textarea>
+    <button id="send-btn" onclick="sendMessage()" title="Enviar">➤</button>
+  </div>
+  <div class="hint">Enter para enviar · Shift+Enter para nueva línea</div>
+</div>
+
+<script>
+  const messagesEl = document.getElementById('messages');
+  const inputEl = document.getElementById('user-input');
+  const sendBtn = document.getElementById('send-btn');
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 180) + 'px';
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function removeWelcome() {
+    const w = document.getElementById('welcome');
+    if (w) w.remove();
+  }
+
+  function appendMessage(role, text, images = [], pdfs = []) {
+    removeWelcome();
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+
+    const label = document.createElement('div');
+    label.className = 'msg-label';
+    label.textContent = role === 'user' ? 'Hans' : 'Don Cachulo';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+
+    div.appendChild(label);
+    div.appendChild(bubble);
+
+    if (images.length || pdfs.length) {
+      const attachments = document.createElement('div');
+      attachments.className = 'attachments';
+
+      images.forEach(url => {
+        const wrap = document.createElement('div');
+        wrap.className = 'attachment-image';
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = 'Imagen generada';
+        img.onclick = () => window.open(url, '_blank');
+        wrap.appendChild(img);
+        attachments.appendChild(wrap);
+      });
+
+      pdfs.forEach(pdf => {
+        const a = document.createElement('a');
+        a.className = 'attachment-pdf';
+        a.href = pdf.url;
+        a.download = pdf.filename;
+        a.innerHTML = `<span class="pdf-icon">📄</span><div><div>${pdf.filename}</div><div class="pdf-name">Clic para descargar</div></div>`;
+        attachments.appendChild(a);
+      });
+
+      div.appendChild(attachments);
+    }
+
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return div;
+  }
+
+  function showThinking() {
+    removeWelcome();
+    const div = document.createElement('div');
+    div.className = 'message assistant';
+    div.id = 'thinking-bubble';
+
+    const label = document.createElement('div');
+    label.className = 'msg-label';
+    label.textContent = 'Don Cachulo';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'thinking';
+    bubble.innerHTML = 'Pensando <div class="dots"><span></span><span></span><span></span></div>';
+
+    div.appendChild(label);
+    div.appendChild(bubble);
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function removeThinking() {
+    const t = document.getElementById('thinking-bubble');
+    if (t) t.remove();
+  }
+
+  async function sendMessage() {
+    const text = inputEl.value.trim();
+    if (!text) return;
+
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    sendBtn.disabled = true;
+
+    appendMessage('user', text);
+    showThinking();
+
+    try {
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+
+      const data = await res.json();
+      removeThinking();
+
+      if (res.ok) {
+        appendMessage('assistant', data.text, data.images || [], data.pdfs || []);
+      } else {
+        appendMessage('assistant', `Error: ${data.detail || 'Algo salió mal.'}`);
+      }
+    } catch (err) {
+      removeThinking();
+      appendMessage('assistant', 'Error de conexión. Verifica que el servidor esté corriendo.');
+    }
+
+    sendBtn.disabled = false;
+    inputEl.focus();
+  }
+
+  function sendSuggestion(text) {
+    inputEl.value = text;
+    sendMessage();
+  }
+
+  async function resetChat() {
+    await fetch('/reset', { method: 'POST' });
+    messagesEl.innerHTML = `
+      <div class="welcome" id="welcome">
+        <div class="big-icon">🤵</div>
+        <h2>Hola, soy Don Cachulo</h2>
+        <p>Tu asistente personal. Puedo gestionar tu calendario, generar imágenes, redactar propuestas en PDF y mucho más.</p>
+        <div class="suggestions">
+          <div class="suggestion" onclick="sendSuggestion('¿Qué tengo en el calendario esta semana?')">📅 Mi agenda esta semana</div>
+          <div class="suggestion" onclick="sendSuggestion('Genera una imagen de un atardecer en la ciudad')">🎨 Generar una imagen</div>
+          <div class="suggestion" onclick="sendSuggestion('Redacta una propuesta de servicios de consultoría y envíamela en PDF')">📄 Propuesta en PDF</div>
+          <div class="suggestion" onclick="sendSuggestion('Crea un evento para mañana a las 10am llamado Reunión de equipo')">➕ Crear evento</div>
+        </div>
+      </div>`;
+  }
+
+  inputEl.focus();
+</script>
+</body>
+</html>
